@@ -4,10 +4,11 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>Todo App</title>
 
-    <link href="bower_components/materialize/dist/css/materialize.css" rel="stylesheet">
-    <link href="css/styles.css" rel="stylesheet">
+    <link rel="stylesheet" href="bower_components/materialize/dist/css/materialize.css" />
+    <link rel="stylesheet" href="css/styles.css" />
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -16,42 +17,67 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
   </head>
-  <body class="teal darken-4" ng-app="app" ng-controller="TodoController">
+  <body class="teal darken-4"
+        ng-app="app"
+        ng-controller="TodoController as $ctrl">
 
     <!-- Modal Structure -->
-    <div id="createTodo" class="modal">
+    <div class="modal">
       <div class="modal-content">
-
         <h4>Create Todo</h4>
 
         <div class="row">
           <form class="col s12">
             <div class="row">
               <div class="input-field col s12">
-                <input id="title" type="text" ng-model="newTodo.title" class="validate">
-                <label for="title">Title</label>
+                <input id="title"
+                       type="text"
+                       class="validate"
+                       ng-model="$ctrl.newTodo.title">
+                <label for="title">
+                  Title
+                </label>
               </div>
               <div class="input-field col s12">
-                <textarea id="text" ng-model="newTodo.text" class="materialize-textarea"></textarea>
-                <label for="text">Text</label>
+                <textarea id="text"
+                          class="materialize-textarea"
+                          ng-model="$ctrl.newTodo.text"></textarea>
+                <label for="text">
+                  Text
+                </label>
               </div>
             </div>
           </form>
         </div>
-
       </div>
+
       <div class="modal-footer">
-        <a class="waves-effect waves-green btn-flat" ng-click="cancel()">Cancel</a>
-        <a class="waves-effect waves-green btn-flat" ng-click="ok()">Add Todo</a>
+        <a class="waves-effect waves-green btn-flat"
+           ng-click="$ctrl.cancel()">
+          Cancel
+        </a>
+        <a class="waves-effect waves-green btn-flat"
+           ng-click="$ctrl.ok()">
+          Add Todo
+        </a>
       </div>
     </div>
+    <!-- End Modal -->
 
     <nav>
       <div class="nav-wrapper">
-        <a href="#" class="brand-logo center">Magnises Todo</a>
-        <ul id="nav-mobile" class="left hide-on-med-and-down">
-          <li ><a ng-click="finished = false;">Todo Items</a></li>
-          <li ><a ng-click="finished = true;">Done</a></li>
+        <a href="#"
+           class="brand-logo center">
+          Magnises Todo
+        </a>
+        <ul id="nav-mobile"
+            class="left hide-on-med-and-down">
+          <li><a ng-click="$ctrl.viewFinished = false;">
+            View Todos
+          </a></li>
+          <li><a ng-click="$ctrl.viewFinished = true;">
+            View Finished
+          </a></li>
         </ul>
       </div>
     </nav>
@@ -62,44 +88,50 @@
           <div class="col s12">
             <div class="col s2">
               <a class="btn-floating btn-large waves-effect waves-light red"
-                 ng-click="createTodo()">
-
+                 ng-click="$ctrl.createTodo()">
                 <i class="mdi-content-add"></i>
               </a>
             </div>
             <div class="col s10">
-              <input type="text" class="white-text" placeholder="Search here..." ng-model="filter" />
+              <input type="text" class="white-text"
+                     placeholder="Search here..."
+                     ng-model="$ctrl.filter"
+                     ng-model-options="{ debounce: 250 }" />
             </div>
-
           </div>
         </div>
       </div>
-      <div class="row">
 
+      <div class="row">
         <div class="col s12 m6"
-            ng-cloak
-            ng-repeat="todo in todos | filter: filter | orderBy: '-createdOn'"
-            ng-if="todo._$data.finished === finished">
+             ng-cloak
+             ng-repeat="todo in $ctrl.$scope.todos | filter: {_$data: {title: $ctrl.filter}} | orderBy: '-createdOn'"
+             ng-if="todo._$data.finished === $ctrl.viewFinished">
           <div class="card blue-grey darken-1">
             <div class="card-content white-text">
-              <span class="card-title">{{ todo._$data.title }}</span>
+              <span class="card-title">
+                {{ todo._$data.title }}
+              </span>
               <p>{{ todo._$data.text }}</p>
             </div>
             <div class="card-action">
-
-              <a
-                ng-click="markAsDone(todo.id)"
-                ng-if="!todo._$data.finished">Mark as done</a>
-
-              <a
-                ng-click="markAsTodo(todo.id)"
-                ng-if="todo._$data.finished">Mark as todo</a>
+              <a ng-click="$ctrl.markAsDone(todo._$data)"
+                 ng-if="!todo._$data.finished">
+                Done
+              </a>
+              <a ng-click="$ctrl.markAsTodo(todo._$data)"
+                 ng-if="todo._$data.finished">
+                Not yet
+              </a>
+              <a ng-click="$ctrl.deleteTodo(todo._$data)">
+                Delete
+              </a>
             </div>
           </div>
         </div>
-
       </div>
     </div>
+
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/materialize/dist/js/materialize.js"></script>
 

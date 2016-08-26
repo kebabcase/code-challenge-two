@@ -1,90 +1,105 @@
-angular
-  .module('app')
-  .controller('TodoController', ['$scope', '$rootScope', 'Todo', 'DS',
-    function($scope, $rootScope, Todo, DS) {
+(() => {
+  'use strict';
 
-      /////////////////
-      ///// Initial Setup
-      /////////////////
+  function TodoController($scope, Todo, DS, LoopBackAuth) {
+    class Controller {
+      constructor() {
+        this.$scope = $scope;
+        this.Todo = Todo;
+        this.DS = DS;
 
-      $('.modal-trigger').leanModal();
-      resetTodo();
-      $scope.finished = false;
+        this.resetTodo();
+        this.viewFinished = false;
 
-      /////////////////
-      ///// Add Todo Data Stream to Model
-      /////////////////
+        // Add Todo Data Stream to Model
+        this.todoList = this.DS.link($scope, 'Todo', 'todos');
+      }
 
-      var todoList = DS.link($scope, 'Todo', 'todos');
+      $onDestroy() {
+        this.todoList.discard();
+
+        if (this.todoList.isEmpty()) {
+          this.todoList.delete();
+        }
+      }
 
       /////////////////
       ///// Page Actions
       /////////////////
 
-      $scope.createTodo = function() {
-        var modal = $('#createTodo');
-        modal.openModal();
+      createTodo() {
+        this.resetTodo();
 
-        $scope.ok = function(){
+        if (!this.modal) {
+          this.modal = $('.modal');
+          this.modal.leanModal();
+        }
 
-          if (!validateTodo($scope.newTodo)) {
-            resetTodo();
-            return modal.closeModal();
-          }
+        this.modal.openModal();
 
-          var name = 'Todo/' + $scope.newTodo.id;
+        this.modal.find('#title').focus();
+      }
 
-          DS.source
-            .record
-      			.getRecord(name)
-      			.set($scope.newTodo);
+      ok() {
+        if (!this.validateTodo(this.newTodo)) {
+          this.close();
+          return;
+        }
 
-          todoList.addEntry(name);
+        const name = this.getTodoName(this.newTodo.id);
 
-          resetTodo();
+        this.DS.getRecord(name).set(this.newTodo);
+        this.todoList.addEntry(name);
 
-          modal.closeModal();
-        };
+        this.cancel();
+      }
 
-        $scope.cancel = function(){
-          resetTodo();
-          modal.closeModal();
-        };
-      };
+      cancel() {
+        this.modal.closeModal();
+      }
 
-      //@TODO: finish todo
-      $scope.deleteTodo = function(todoId) {
+      deleteTodo(todo) {
+        if (todo && todo.id) {
+          this.todoList.removeEntry(this.getTodoName(todo.id));
+        }
+      }
 
-      };
+      markAsDone(todo) {
+        todo.finished = true;
+      }
 
-      $scope.markAsDone = function(todoId) {
-
-      };
-
-      $scope.markAsTodo = function(todoId) {
-
-      };
+      markAsTodo(todo) {
+        todo.finished = false;
+      }
 
       /////////////////
       ///// Required Functions
       /////////////////
 
-      function validateTodo(todo) {
-        if(todo.title.length < 1){
-          return false;
-        }
-
-        return true;
+      getTodoName(id) {
+        return `Todo/${id}`;
       }
 
-      function resetTodo() {
-        $scope.newTodo = {
-          id: DS.source.getUid(),
+      validateTodo(todo) {
+        return todo.title.length >= 1;
+      }
+
+      resetTodo() {
+        this.newTodo = {
+          id: this.DS.source.getUid(),
           title: '',
           text: '',
           createdOn: (new Date()).toString(),
           finished: false
         };
       }
+    }
 
-    }]);
+    return new Controller();
+  }
+
+  TodoController.$inject = ['$scope', 'Todo', 'DS', 'LoopBackAuth'];
+
+  angular.module('app')
+    .controller('TodoController', TodoController);
+})();

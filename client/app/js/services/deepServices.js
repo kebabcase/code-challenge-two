@@ -75,6 +75,10 @@
 
       return list;
     };
+
+    this.getRecord = function(name) {
+      return ds.source.record.getRecord(name);
+    };
   });
 
 

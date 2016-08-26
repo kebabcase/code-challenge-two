@@ -14,8 +14,8 @@
   ],
   "dependencies": {
     "materialize": "^0.96.1",
-    "angular": "~1.4.0",
-    "angular-resource": "~1.4.0",
+    "angular": "^1.5.0",
+    "angular-resource": "^1.5.0",
     "deepstream.io-client-js": "~0.2.17"
   }
 }

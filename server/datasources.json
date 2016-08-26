@@ -4,6 +4,6 @@
     "connector": "mongodb",
     "host": "localhost",
     "database": "todoapp",
-    "port": 27017
+    "port": 6021
   }
 }
